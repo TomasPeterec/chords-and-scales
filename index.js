@@ -252,23 +252,21 @@ function findChordOrScale(arrayOfNotes01){
 
 
 
-
+const CHORD_TYPES = ["Major", "Major 7", "Major 6", "Major Maj 7", "Minor", "Minor 7"]
 
 app.get("/", (req, res) => {
     res.send(`
 <form method="post">
 <input step="any" type="number" name="keyCursor" value="${state.indexes.keyCursor || 39}"/>
 <input step="any" name="newKey" value="${state.indexes.newKey || "C"}" />
-<!--<input name="chords" list="chordList" value="${state.indexes.number2 || "Major"}" />-->
 <select name="chords" id="chordList">
-    <option ${state.indexes.number2 === "Major" ? "selected" : ""} value="Major">Major</option>
-    <option ${state.indexes.number2 === "Major 7" ? "selected" : ""} value="Major 7">Dominant 7</option>
-    <option ${state.indexes.number2 === "Major 6" ? "selected" : ""} value="Major 6" >Major 6</option>
-    <option ${state.indexes.number2 === "Major Maj 7" ? "selected" : ""} value="Major Maj 7">Maj7</option>
-    <option ${state.indexes.number2 === "Minor" ? "selected" : ""} value="Minor">Minor</option>
-    <option ${state.indexes.number2 === "Minor 7" ? "selected" : ""} value="Minor 7">Minor 7</option>
+    ${CHORD_TYPES.map(
+        chordType =>
+            `<option ${state.aid.demo03 === chordType ? "selected" : ""} value="${chordType}">
+                ${chordType}
+            </option>`
+    )}
 </select>
-
 <input type="submit"/>
 </form>
    
