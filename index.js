@@ -226,13 +226,20 @@ function compareChordShapes(arrayOfNotes){
     return returnOfRun
 }
 
+const arraysEqual = (a, b) => a.join() === b.join()
 
-function whichbasicNote(chordDbPatern,curentSetOfNotes){
-    
-    var something = "E"
+function whichbasicNote(chordDbPatern, originalCurentPatern){
+    var thickedOriginalCurentPatern = chordThickening(originalCurentPatern)
+    var CurentPaternToZero = getChordShapeFromSetOfNotes(thickedOriginalCurentPatern)
+       
+    for (let i = 0; i < CurentPaternToZero.length-1; i++) {
 
-
-    return something
+        if(arraysEqual(chordDbPatern,CurentPaternToZero) === true){
+            return thickedOriginalCurentPatern[i]
+        }
+        CurentPaternToZero.push(CurentPaternToZero.shift());
+        
+    }
 }
 
 function findChordOrScale(arrayOfNotes01){
@@ -245,7 +252,7 @@ function findChordOrScale(arrayOfNotes01){
     nextResult = whichbasicNote(chordName[0],arrayOfNotes01)
 
 
-    return  [chordName[1],nextResult]
+    return  [chordName[1], allTunesOnKeyboard[nextResult].tune]
 }
 
 
@@ -284,6 +291,8 @@ app.get("/", (req, res) => {
         ${state.aid.demo07}
         <br/><br/>
         ${state.aid.demo08}
+        <br/><br/>
+        ${state.aid.demo09}
         
 
 
@@ -314,6 +323,8 @@ app.post("/", (req, res) => {
     state.aid.demo07 = chordFromIndexes(state.aid.demo06)
 
     state.aid.demo08 = findChordOrScale([39,67,58,36])
+
+    state.aid.demo09 = chordThickening([39,67,58,36])
 
 
    
