@@ -231,15 +231,26 @@ const arraysEqual = (a, b) => a.join() === b.join()
 function whichbasicNote(chordDbPatern, originalCurentPatern){
     var thickedOriginalCurentPatern = chordThickening(originalCurentPatern)
     var CurentPaternToZero = getChordShapeFromSetOfNotes(thickedOriginalCurentPatern)
+    var underFirstindex = 0
        
-    for (let i = 0; i < CurentPaternToZero.length-1; i++) {
+    for (let i = 0; i < CurentPaternToZero.length; i++) {
 
         if(arraysEqual(chordDbPatern,CurentPaternToZero) === true){
             return thickedOriginalCurentPatern[i]
         }
+        
+        CurentPaternToZero[0] = 12
         CurentPaternToZero.push(CurentPaternToZero.shift());
+
+        underFirstindex = CurentPaternToZero[0]
+        
+        for(let c = 0; c < CurentPaternToZero.length; c++){
+            CurentPaternToZero[c] = CurentPaternToZero[c] - underFirstindex
+            
+        }
         
     }
+     
 }
 
 function findChordOrScale(arrayOfNotes01){
