@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 
 
-var state = {indexes: {}, chordShapes: {}, aid: {}}
+var state = {indexes: {}, chordShapes: {}, scaleShapes: {}, aid: {}}
 
 var allTunesOnKeyboard = [
     {tune: "A", oct: 0}, //0
@@ -105,12 +105,25 @@ var allTunesOnKeyboard = [
 
 state.indexes.keyCursor = 39 //39 is basic C in the middle of keyboard
 state.indexes.number2 = 0
+
+// chord shapes
 state.chordShapes.majorTriad = [[0, 4, 7], "Major"]
 state.chordShapes.minorTriad = [[0, 3, 7], "Minor"]
 state.chordShapes.major7 = [[0, 4, 7, 10], "Major 7"]
 state.chordShapes.minor7 = [[0, 3, 7, 10], "Minor 7"]
 state.chordShapes.major6 = [[0, 4, 7, 9], "Major 6"]
-state.chordShapes.majorMaj7 = [[0, 4, 7, 11], "Major Maj 7"]
+state.chordShapes.majorMaj7 = [[0,  4, 7, 11], "Major Maj 7"]
+
+// scale shapes
+state.scaleShapes.majorScale = [[0, 2, 4, 5, 7, 9, 11, 12], "Major scale - Ionian mode, 1. mode of major scale"]
+state.scaleShapes.dorianMode = [[0, 2, 3, 5, 7, 9, 10, 12], "Dorian mode, 2. mode of major scale"]
+state.scaleShapes.phrygianMode = [[0, 1, 3, 5, 7, 8, 10, 12], "Phrygian mode, 3. mode of major scale"]
+state.scaleShapes.lydianMode = [[0, 2, 4, 6, 7, 9, 11, 12], "Lydian mode, 4. mode of major scale"]
+state.scaleShapes.mixolydianMode = [[0, 2, 4, 5, 7, 9, 10, 12], "Mixolydian mode, 5. mode of major scale"]
+state.scaleShapes.aeolianMode = [[0, 2, 3, 5, 7, 8, 10, 12], "Aeolian mode, 6. mode of major scale"]
+state.scaleShapes.locrianMode = [[0, 1, 3, 5, 6, 8, 10, 12], "Locrianian mode, 7. mode of major scale"]
+
+
 state.aid.curentOutput = []
 state.aid.testOutput = []
 state.indexes.number4 = 0
@@ -266,8 +279,40 @@ function findChordOrScale(arrayOfNotes01){
     return  [chordName[1], allTunesOnKeyboard[nextResult].tune]
 }
 
+function whichScaleShapeFromNumbers(setOfTones){
+    var newSetOfTones = setOfTones.concat([])
+    var shapeFromSetOfTones = getChordShapeFromSetOfNotes(newSetOfTones)
+    var valueToRetrn ="This scale or mode was not findet"
+    for (const chShape in state.scaleShapes){
+        if(JSON.stringify(state.scaleShapes[chShape][0]) === JSON.stringify(shapeFromSetOfTones)){
+            valueToRetrn = state.scaleShapes[chShape].concat([])
+         }
+
+    }
+
+return [tuneFromIndex(newSetOfTones[0]), valueToRetrn[1], valueToRetrn[0]] 
+}
 
 
+function whichScaleShapeFromTones(setOfTones){
+var newSetOfTones = setOfTones.concat([])
+
+var tonesTurnedToNumbers = []
+for (let cc = 0; cc < newSetOfTones.length; cc++){
+       
+    tonesTurnedToNumbers[cc] = parseInt(findNearestKey(newSetOfTones[cc].replace("H", "B"), parseInt(state.indexes.keyCursor)))
+    
+        if (tonesTurnedToNumbers[cc] <= tonesTurnedToNumbers[0]){
+
+        if(cc > 0){
+            tonesTurnedToNumbers[cc] = tonesTurnedToNumbers[cc] + 12
+
+        }
+    }
+
+}
+    return whichScaleShapeFromNumbers(tonesTurnedToNumbers)
+}
 
 
 const CHORD_TYPES = ["Major", "Major 7", "Major 6", "Major Maj 7", "Minor", "Minor 7"]
@@ -277,6 +322,8 @@ app.get("/", (req, res) => {
 <form method="post">
 <input step="any" type="number" name="keyCursor" value="${state.indexes.keyCursor || 39}"/>
 <input step="any" name="newKey" value="${state.indexes.newKey || "C"}" />
+<input step="any" name="scaleField" value="${state.indexes.scaleField || "39, 41, 43, 45, 46, 48, 50, 51"}" />
+<input step="any" name="scaleTonesField" value="${state.indexes.scaleTonesField || "A, H, C#, D, E, F#, G, A"}" />
 <select name="chords" id="chordList">
     ${CHORD_TYPES.map(
         chordType =>
@@ -304,6 +351,10 @@ app.get("/", (req, res) => {
         ${state.aid.demo08}
         <br/><br/>
         ${state.aid.demo09}
+        <br/><br/>Scale or mode from numbers: 
+        ${state.aid.demo10}
+        <br/><br/>Scale or mode from tones: 
+        ${state.aid.demo11}
         
 
 
@@ -336,6 +387,14 @@ app.post("/", (req, res) => {
     state.aid.demo08 = findChordOrScale([39,67,58,36])
 
     state.aid.demo09 = chordThickening([39,67,58,36])
+
+    state.aid.demo10 = whichScaleShapeFromNumbers(state.indexes.scaleField.replace(" ","").split(","))
+
+    state.aid.doc02 = state.indexes.scaleTonesField.split(",")
+    for (let qq = 0; qq < state.aid.doc02.length; qq++){
+        state.aid.doc02[qq] = state.aid.doc02[qq].trim()
+    }
+    state.aid.demo11 = whichScaleShapeFromTones(state.aid.doc02) 
 
 
    
